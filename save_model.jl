@@ -1,10 +1,8 @@
-# Save and Load Final DBN Model using BSON
-
 using BSON
 include("data_preparation.jl")
 include("ssa_dbn_training.jl")
 
-# === Train final model with best hyperparameters ===
+# Best SSA params
 h1 = 6
 h2 = 5
 lr = 0.0106f0
@@ -21,14 +19,12 @@ h1_out = sigmoid.(rbm1.W' * X_train .+ rbm1.hbias)
 train_rbm(rbm2, h1_out, lr, epochs)
 train_dbn(dbn, X_train, y_train, lr, epochs)
 
-# === Save the model ===
+# Save
 BSON.@save "final_dbn.bson" dbn
 println("✅ Model saved to 'final_dbn.bson'")
 
-# === Load the model back ===
+# Load and test
 BSON.@load "final_dbn.bson" dbn
-
-# === Evaluate after loading ===
 preds = forward_dbn(dbn, X_test) .> 0.5
 acc = mean((preds .== (y_test .== 1)))
 println("📦 Reloaded model accuracy: ", round(acc * 100, digits=2), "%")
